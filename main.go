@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"gopkg.in/redis.v5"
+	redis "gopkg.in/redis.v5"
 )
 
 func main() {
@@ -16,22 +17,17 @@ func main() {
 	fmt.Scanln(&redisCommand, &redisHost, &redisPort)
 	fmt.Println("Attempting to connect")
 	fmt.Println(redisCommand)
-	if redisCommand == "connect" {
+	if redisCommand == "ping" {
 		res, client, err := connectClient(redisHost, redisPort)
 		if err != nil {
 			fmt.Println(err)
+			log.Fatal(err)
 		}
 		fmt.Println(res)
 		//call  the  loop   function
 		loopFunction(client)
 	}
 
-	//readkey code
-	/*	fmt.Println("Press Any key to exit.")
-		b := make([]byte, 10)
-		if _, err := os.Stdin.Read(b); err != nil {
-			panic(err)
-		}*/
 }
 func loopFunction(connection *redis.Client) {
 	fmt.Printf("%s", "goredis# ")
@@ -46,7 +42,8 @@ func loopFunction(connection *redis.Client) {
 		fmt.Println("Press Any key to exit.")
 		b := make([]byte, 10)
 		if _, err := os.Stdin.Read(b); err != nil {
-			panic(err)
+			log.Fatal(err)
+
 		}
 	}
 
@@ -61,6 +58,7 @@ func connectClient(host string, port string) (response string, connection *redis
 	})
 	pong, err := client.Ping().Result()
 	if err != nil {
+		log.Fatal(err)
 		return "Error connecting redis", nil, err
 
 	}
@@ -79,7 +77,8 @@ func setCommand(client *redis.Client, arg1 string, arg2 string) {
 func getCommand(client *redis.Client, arg1 string) {
 	val, err := client.Get(arg1).Result()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		fmt.Println("Key doesnt exists")
 	}
 	fmt.Println(val)
 	loopFunction(client)
